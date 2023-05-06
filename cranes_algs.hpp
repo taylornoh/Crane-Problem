@@ -54,10 +54,28 @@ path crane_unloading_dyn_prog(const grid& setting) {
   assert(setting.rows() > 0);
   assert(setting.columns() > 0);
 
-  // TODO: implement the dynamic programming algorithm, then delete this
+  
+  using cell_type = std::optional<path>;
+
+  std::vector<std::vector<cell_type> > A(setting.rows(),
+                                        std::vector<cell_type>(setting.columns()));
+
+  A[0][0] = path(setting);
+  assert(A[0][0].has_value());
+
+  for (coordinate r = 0; r < setting.rows(); ++r) {
+    for (coordinate c = 0; c < setting.columns(); ++c) {
+
+      if (setting.get(r, c) == CELL_BUILDING){
+        A[r][c].reset();
+        continue;
+        }
+
+    cell_type from_above = std::nullopt;
+    cell_type from_left = std::nullopt;
+
+	    // TODO: implement the dynamic programming algorithm, then delete this
   // comment.
-
-
 
    assert(best->has_value());
 //  //   std::cout << "total cranes" << (**best).total_cranes() << std::endl;
