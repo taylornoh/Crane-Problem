@@ -28,19 +28,53 @@ namespace cranes {
 //
 // The grid must be non-empty.
 path crane_unloading_exhaustive(const grid& setting) {
-
-  // grid must be non-empty.
   assert(setting.rows() > 0);
   assert(setting.columns() > 0);
 
-  // Compute maximum path length, and check that it is legal.
   const size_t max_steps = setting.rows() + setting.columns() - 2;
   assert(max_steps < 64);
 
-  // TODO: implement the exhaustive search algorithm, then delete this
-  // comment.
   path best(setting);
   for (size_t steps = 0; steps <= max_steps; steps++) {
+    for (size_t i = 0; i <= steps; i++) {
+      size_t j = steps - i;
+      if (i >= setting.rows() || j >= setting.columns()) {
+        continue;
+      }
+      if (setting.get(i, j) == CELL_BUILDING) {
+        continue;
+      }
+      for (size_t k = 0; k <= steps; k++) {
+        size_t l = steps - k;
+        if (k >= setting.rows() || l >= setting.columns()) {
+          continue;
+        }
+        if (setting.get(k, l) == CELL_BUILDING) {
+          continue;
+        }
+        path candidate(setting);
+
+        candidate = best;
+        if (i == 0 && j == 0) {
+          if(candidate.is_step_valid(STEP_DIRECTION_START)) {
+            candidate.add_step(STEP_DIRECTION_START);
+          }
+        } else if (i == k && j < l) {
+        if(candidate.is_step_valid(STEP_DIRECTION_SOUTH)) {
+            candidate.add_step(STEP_DIRECTION_SOUTH);
+          }
+        } else if(i < k && j == l) {
+        if(candidate.is_step_valid(STEP_DIRECTION_EAST)) {
+            candidate.add_step(STEP_DIRECTION_EAST);
+          }
+        }
+        if (candidate.total_cranes() < best.total_cranes()) {
+          best = candidate;
+        }
+      }
+    }
+  }
+  return best;
 }
 
 // Solve the crane unloading problem for the given grid, using a dynamic
@@ -50,11 +84,13 @@ path crane_unloading_exhaustive(const grid& setting) {
 //path crane_unloading_dyn_prog(const grid& setting) {
 path crane_unloading_dyn_prog(const grid& setting) {
 
+  path best(setting);
+
   // grid must be non-empty.
   assert(setting.rows() > 0);
   assert(setting.columns() > 0);
 
-  
+
   using cell_type = std::optional<path>;
 
   std::vector<std::vector<cell_type> > A(setting.rows(),
@@ -77,10 +113,11 @@ path crane_unloading_dyn_prog(const grid& setting) {
 	    // TODO: implement the dynamic programming algorithm, then delete this
   // comment.
 
-   assert(best->has_value());
+   // assert(best->has_value());
 //  //   std::cout << "total cranes" << (**best).total_cranes() << std::endl;
 
-   return **best;
 	}
-
+}
+return best;
+}
 }
