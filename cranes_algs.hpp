@@ -47,36 +47,29 @@ path crane_unloading_exhaustive(const grid& setting) {
   // TODO: implement the exhaustive search algorithm, then delete this
   // comment.
   path best(setting);
-  for (size_t steps = 0; steps <= max_steps; steps++) {
-    // Bit generation loop
-    for (uint64_t bits = 0; bits <= pow(2, steps) - 1; bits++){
-      path candidate(setting);
-      // Another loop to iterate over bit strings (bit strings are stored in bits 2^0 and 2^1)
-      // Variable that will iterate from 0 to whatever the step size in the loop is
-      for (uint64_t j = 0; j <= steps - 1; j++) {
-        // Bit shift operation
-        int bit = (bits >> j) & 1;
-        if (bit == 1) {
-        // Add a vertical step
-          candidate.add_step(STEP_DIRECTION_SOUTH);
+  for (size_t bits = 0; bits < pow(2, max_steps); bits++) {
+      path p(setting);
+
+      std::vector<step_direction> candidate;
+      for(size_t k = 0; k < max_steps; k++) {
+        int bit = (bits >> k) & 1;
+        if(bit == 1) {
+          candidate.push_back(STEP_DIRECTION_SOUTH);
         } else {
-          // Add a horizontal step
-          candidate.add_step(STEP_DIRECTION_EAST);
+          candidate.push_back(STEP_DIRECTION_EAST);
         }
       }
-      // Check if candidate path is valid and better than the current best path
-      bool is_valid = true;
-      for (const auto& step : candidate.steps()) {
-        if (!candidate.is_step_valid(step.direction())) {
-          is_valid = false;
+      for(step_direction s: candidate) {
+        if(!p.is_step_valid(s))
           break;
+        p.add_step(s);
+
+        if(p.total_cranes() > best.total_cranes()) {
+          best = p;
         }
       }
-      if (is_valid && candidate.steps().size() < best.steps().size()) {
-        best = candidate;
-      }
+
     }
-  }
   return best;
 }
 
