@@ -27,6 +27,13 @@ namespace cranes {
 // with an assertion.
 //
 // The grid must be non-empty.
+
+// 1. Generate all possible combinations of 1s and 0s (no recursion, just use two loops) (one function only)
+// 2. Use bit shift to see what position you have 1s and 0s
+// 3. Use add_step helper functions according to your ones and zeros (convert bit strings to 1s and 0s)
+// 4. Pass candidate to is valid function
+// 5. best = calculate the shortest lengths and max cranes (vectors of steps)
+
 path crane_unloading_exhaustive(const grid& setting) {
 
   // grid must be non-empty.
@@ -40,21 +47,45 @@ path crane_unloading_exhaustive(const grid& setting) {
   // TODO: implement the exhaustive search algorithm, then delete this
   // comment.
   path best(setting);
-  for (size_t steps = 0; steps <= max_steps; steps++) {
+  for (size_t bits = 0; bits < pow(2, max_steps); bits++) {
+      path p(setting);
+
+      std::vector<step_direction> candidate;
+      for(size_t k = 0; k < max_steps; k++) {
+        int bit = (bits >> k) & 1;
+        if(bit == 1) {
+          candidate.push_back(STEP_DIRECTION_SOUTH);
+        } else {
+          candidate.push_back(STEP_DIRECTION_EAST);
+        }
+      }
+      for(step_direction s: candidate) {
+        if(!p.is_step_valid(s))
+          break;
+        p.add_step(s);
+
+        if(p.total_cranes() > best.total_cranes()) {
+          best = p;
+        }
+      }
+
+    }
+  return best;
 }
 
 // Solve the crane unloading problem for the given grid, using a dynamic
 // programming algorithm.
-//
 // The grid must be non-empty.
-//path crane_unloading_dyn_prog(const grid& setting) {
+
 path crane_unloading_dyn_prog(const grid& setting) {
+
+  path best(setting);
 
   // grid must be non-empty.
   assert(setting.rows() > 0);
   assert(setting.columns() > 0);
 
-  
+
   using cell_type = std::optional<path>;
 
   std::vector<std::vector<cell_type> > A(setting.rows(),
@@ -74,13 +105,14 @@ path crane_unloading_dyn_prog(const grid& setting) {
     cell_type from_above = std::nullopt;
     cell_type from_left = std::nullopt;
 
-	    // TODO: implement the dynamic programming algorithm, then delete this
-  // comment.
+	  // TODO: implement the dynamic programming algorithm, then delete this comment.
 
-   assert(best->has_value());
-//  //   std::cout << "total cranes" << (**best).total_cranes() << std::endl;
+   // assert(best->has_value());
+   // std::cout << "total cranes" << (**best).total_cranes() << std::endl;
+      }
+    }
 
-   return **best;
+   return best;
 	}
 
 }

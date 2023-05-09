@@ -90,6 +90,7 @@ int main() {
 		   [&]() {
          TEST_EQUAL("correct", maze_solution, crane_unloading_dyn_prog(maze));
 		   });
+
   rubric.criterion("stress test", 2,
 		   [&]() {
          const cranes::coordinate ROWS = 5,
