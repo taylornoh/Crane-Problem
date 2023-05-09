@@ -79,13 +79,9 @@ path crane_unloading_exhaustive(const grid& setting) {
 
 path crane_unloading_dyn_prog(const grid& setting) {
 
-  path best(setting);
-
   // grid must be non-empty.
   assert(setting.rows() > 0);
   assert(setting.columns() > 0);
-
-
   using cell_type = std::optional<path>;
 
   std::vector<std::vector<cell_type> > A(setting.rows(),
@@ -105,14 +101,48 @@ path crane_unloading_dyn_prog(const grid& setting) {
     cell_type from_above = std::nullopt;
     cell_type from_left = std::nullopt;
 
-	  // TODO: implement the dynamic programming algorithm, then delete this comment.
-
-   // assert(best->has_value());
-   // std::cout << "total cranes" << (**best).total_cranes() << std::endl;
-      }
+    //Implementation
+    if (r != 0 && setting.get(r-1, c) != CELL_BUILDING) {
+      if (A[r-1][c].has_value()) {
+        from_above.emplace(A[r-1][c].value());
+        from_above->add_step(STEP_DIRECTION_SOUTH);
+       }
     }
 
-   return best;
+    if (c != 0 && setting.get(r, c-1) != CELL_BUILDING) {
+      if (A[r][c-1].has_value()) {
+        from_left.emplace(A[r][c-1].value());
+        from_left->add_step(STEP_DIRECTION_EAST);
+      }
+    }
+    
+    if (from_above.has_value() && from_left.has_value()) {
+      A[r][c] = from_above->total_cranes() >= from_left->total_cranes() ? from_above : from_left;
+    } else if (from_above.has_value() && !from_left.has_value()) {
+      A[r][c] = from_above;
+    } else if (!from_above.has_value() && from_left.has_value()) {
+      A[r][c] = from_left;
+    }
+    }
+  }
+   
+   //post-processing step to find the best path
+   coordinate r_max = 0;
+   coordinate c_max = 0;
+   unsigned max_cranes = 0;
+    for (coordinate r = 0; r < setting.rows(); ++r) {
+      for (coordinate c = 0; c < setting.columns(); ++c) {
+        if (A[r][c].has_value() && A[r][c]->total_cranes() > max_cranes) {
+        r_max = r;
+        c_max = c;
+        max_cranes = A[r][c]->total_cranes();
+        }
+      }
+    }
+   cell_type *best = &A[r_max][c_max]; 
+   assert(best->has_value());
+//  //   std::cout << "total cranes" << (**best).total_cranes() << std::endl;
+   return **best;
 	}
 
 }
