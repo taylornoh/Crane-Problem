@@ -1,4 +1,9 @@
 # Project 2: Dynamic vs. Exhaustive - Crane unloading problem
+# Group Members:
+* Michael Chhun mchhun2@csu.fullerton.edu
+* Taylor Noh taylornoh@csu.fullerton.edu
+* Chenhao Wei chenhao.wei@csu.fullerton.edu
+* Quan Tru Thai miket126@csu.fullerton.edu
 # CPSC 335 - Algorithm Engineering
 # Spring 2023
 # Instructor: Himani Tawade
